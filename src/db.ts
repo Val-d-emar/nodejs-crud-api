@@ -1,4 +1,4 @@
-import {v4, validate} from 'uuid';
+import { v4 } from 'uuid';
 
 export class Record {
     constructor(
@@ -14,6 +14,17 @@ export class User extends Record {
     ) {
         super();
     };
+    static check(user: Object) {
+        return ('username' in user) &&
+            ('age' in user) &&
+            ('hobbies' in user) &&
+            (typeof user.username === 'string') &&
+            (typeof user.age === 'number') &&
+            (user.hobbies instanceof Array) &&
+            (user.hobbies.find((item) => !(typeof item === 'string')) === undefined) &&
+            ('id' in user ? typeof user.id === 'string' : true) &&
+            Object.keys(user).length <= 4;
+    }
 }
 
 export class DB_api {
@@ -22,36 +33,32 @@ export class DB_api {
         public record_type: Object,
     ) {
         this._db = new Map<string, Record>();
-
     }
     public get(uid?: string) {
         if (uid === undefined) {
-            return this._db;
+            let a: Record[] = [];
+            this._db.forEach(val => {
+                a.push(val);
+            });
+            return a;
         }
-        if (validate(uid)) {
+        return this._db.get(uid);
+    }
+    public add(record: Record) {
+        record.id = v4();
+        this._db.set(record.id, record)
+        return this._db.get(record.id);
+    }
+    public update(uid: string, record: Record) {
+        if (this.get(uid)) {
+            record.id = uid;
+            this._db.set(uid, record);
             return this._db.get(uid);
         }
         return false;
     }
-    public add(record: Record) {
-        record.id = v4();                
-        return this._db.set(record.id, record).get(record.id);
-    }
-    public update(uid: string, record: Record) {
-        if (validate(uid)) {
-            if (this.get(uid)){
-                return false;
-            }    
-            record.id == uid            
-            return this._db.set(uid, record);
-        }
-        return false;
-    }
     public del(uid: string) {
-        if (validate(uid)) {
-            return this._db.delete(uid);
-        }
-        return false;
+        return this._db.delete(uid);
     }
 }
 
