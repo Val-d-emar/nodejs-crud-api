@@ -1,5 +1,5 @@
-// Uncomment the code below and write your tests
-import {str} from '.';
+import {str, PORT} from '.';
+import process from 'process';
 
 describe('Scenario 1', () => {
   test('test 1', async () => {
@@ -7,6 +7,6 @@ describe('Scenario 1', () => {
   });
 
   test('test 2', () => {
-    expect(str).toBe("Hello");
+    expect(PORT).toBe(4000);
   });
 });
